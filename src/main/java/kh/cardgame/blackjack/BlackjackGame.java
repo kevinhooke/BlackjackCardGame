@@ -35,7 +35,7 @@ public class BlackjackGame {
 
 	public void startGame() {
 		
-		System.out.println("How many computer players? (enter number like 1");
+		System.out.println("How many computer players? (enter number of players, like 1)");
 		String players = this.getPlayerInput();
 		this.playerCount = Integer.parseInt(players);
 		this.dealToPlayers();
@@ -48,7 +48,7 @@ public class BlackjackGame {
 		this.player.addToHand(this.dealer.deal(1));
 		this.player.addToHand(this.dealer.deal(1));
 
-		for(int i=0; i<this.playerCount; i++){
+		for(int i=1; i <= this.playerCount; i++){
 			System.out.println("Dealing to player " + i + " ...");
 			Player computerPlayer = new Player(Player.PlayerType.computer, "Computer player " + i);
 			computerPlayer.addToHand(this.dealer.deal(1));
