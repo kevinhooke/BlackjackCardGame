@@ -73,6 +73,32 @@ public class BlackjackGame {
 		for(Player computerPlayer : this.computerPlayers){
 			this.takeTurn(computerPlayer);
 		}
+		
+		//show hands
+		int winningScore = 0;
+		Player winner = null;
+		System.out.println("\nPlayers hands: ");
+		System.out.println("Player: ");
+		this.player.getHand().printHand();
+		winner = this.player;
+		int playerScore = this.player.getHand().getValueOfCardsInHand();
+		if(playerScore < 22){
+			winningScore = playerScore;
+		}
+		
+		for(Player computerPlayer : this.computerPlayers){
+			System.out.println("\nPlayer: " + computerPlayer.getPlayerName());
+			computerPlayer.getHand().printHand();
+			int currentScore = computerPlayer.getHand().getValueOfCardsInHand();
+			//TODO handle draw
+			if(currentScore < 22 && currentScore > winningScore) {
+				winningScore = currentScore;
+				winner = computerPlayer;
+			}
+		}
+		
+		System.out.println("Winner is: " + winner.getPlayerName() + ", score: " + winningScore);
+
 	}
 
 	/**
@@ -94,15 +120,16 @@ public class BlackjackGame {
 			}
 			
 			if (handValue > 21) {
-				System.out.println("Player: " + currentPlayer.getPlayerName() + " is bust!");
-				currentPlayer.getHand().printHand();
+				System.out.println("Player: " + currentPlayer.getPlayerName() + " is bust!\n");
+				//currentPlayer.getHand().printHand();
 				play = false;
 			} else {
 				GameMove move = this.getNextMove(currentPlayer);
 				if (move == GameMove.hit) {
+					System.out.println("Player: " + currentPlayer.getPlayerName() + " says hit!\n");
 					currentPlayer.addToHand(this.dealer.deal(1));
 				} else if (move == GameMove.stick) {
-					System.out.println("Player: " + currentPlayer.getPlayerName() + " says stick");
+					System.out.println("Player: " + currentPlayer.getPlayerName() + " says stick\n");
 					play = false;
 				}
 			}
@@ -124,35 +151,51 @@ public class BlackjackGame {
 			}
 		}
 		else{
-			move = calculateNextMoveForComputerpPlayer(currentPlayer);
-			System.out.println("Player: " + currentPlayer.getPlayerName() + " says: " + move.toString());
-		
+			move = calculateNextMoveForComputerPlayer(currentPlayer);
+
 		}
 		return move;
 
 	}
 
-	private GameMove calculateNextMoveForComputerpPlayer(Player currentPlayer) {
+	private GameMove calculateNextMoveForComputerPlayer(Player currentPlayer) {
 		GameMove move = null;
-		
-		//for simplicity 50/50 for now
-		Random r = new Random();
-		int nextMove = r.nextInt(1); // 0 or 1
-		
-		if(nextMove == 0)
-		{
-			move = GameMove.hit;
-		}
-		else if(nextMove == 1){
+		int currentScore = currentPlayer.getHand().getValueOfCardsInHand();
+		if(currentScore == 21) {
 			move = GameMove.stick;
 		}
-		
+		else {
+			Random r = new Random();
+			int nextMove = 1; //default = stick
+			
+			if(currentScore < 12){
+				move = GameMove.hit; // if <= 11 100% chance of hitting
+			}
+			else {
+				if(currentScore < 14){
+					nextMove = r.nextInt(1); // 0 or 1 = 50/50 chance of hitting
+				} else if(currentScore < 16){
+					nextMove = r.nextInt(3); // 1 in 4 chance of hitting
+				}
+				else if(currentScore < 18){
+					nextMove = r.nextInt(7); // 1 in 8 chance of hitting
+				}
+				
+				if(nextMove == 0) {
+					move = GameMove.hit;
+				}
+				else {
+					move = GameMove.stick;
+				}
+			}
+		}
 		return move;
 	}
 
 	private String getPlayerInput() {
 		Scanner scan = new Scanner(System.in);
 		String text = scan.nextLine();
+		//scan.close();
 		return text;
 	}
 }
