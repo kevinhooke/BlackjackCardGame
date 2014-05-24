@@ -8,6 +8,7 @@ import java.util.Scanner;
 import kh.cardgame.common.Dealer;
 import kh.cardgame.common.GameMove;
 import kh.cardgame.common.Player;
+import kh.cardgame.io.Output;
 
 /**
  * Simple implementation of the card game Blackjack.
@@ -21,12 +22,8 @@ public class BlackjackGame {
 	private int score;
 	private List<Player> computerPlayers;
 	private int playerCount;
-
-	public static void main(String[] args) {
-		BlackjackGame game = new BlackjackGame();
-		game.startGame();
-	}
-
+	private Output output;
+	
 	public BlackjackGame() {
 		this.dealer = new Dealer();
 		this.player = new Player(Player.PlayerType.human, "Player 1");
@@ -35,7 +32,7 @@ public class BlackjackGame {
 
 	public void startGame() {
 		
-		System.out.println("How many computer players? (enter number of players, like 1)");
+		output.write("Players?");
 		String players = this.getPlayerInput();
 		this.playerCount = Integer.parseInt(players);
 		this.dealToPlayers();
@@ -44,12 +41,12 @@ public class BlackjackGame {
 	}
 
 	private void dealToPlayers() {
-		System.out.println("Dealing to you...");
+		output.write("Dealing to you...");
 		this.player.addToHand(this.dealer.deal(1));
 		this.player.addToHand(this.dealer.deal(1));
 
 		for(int i=1; i <= this.playerCount; i++){
-			System.out.println("Dealing to player " + i + " ...");
+			output.write("Dealing player " + i + " ...");
 			Player computerPlayer = new Player(Player.PlayerType.computer, "Computer player " + i);
 			computerPlayer.addToHand(this.dealer.deal(1));
 			computerPlayer.addToHand(this.dealer.deal(1));
@@ -61,8 +58,8 @@ public class BlackjackGame {
 	}
 
 	/**
-	 * Main game loop. Each player takes a turn asking for another card or sticking
-	 * until they hold. Keep playing until everyone sticks or has bust.
+	 * Main game loop. Each player takes a turn asking for another card or sticking.
+	 * Keep playing until everyone sticks or has bust.
 	 */
 	private void gameLoop() {
 		
@@ -77,8 +74,8 @@ public class BlackjackGame {
 		//show hands
 		int winningScore = 0;
 		Player winner = null;
-		System.out.println("\nPlayers hands: ");
-		System.out.println("Player: ");
+		output.write("\nPlayers hands: ");
+		output.write("Player: ");
 		this.player.getHand().printHand();
 		winner = this.player;
 		int playerScore = this.player.getHand().getValueOfCardsInHand();
@@ -87,7 +84,7 @@ public class BlackjackGame {
 		}
 		
 		for(Player computerPlayer : this.computerPlayers){
-			System.out.println("\nPlayer: " + computerPlayer.getPlayerName());
+			output.write("\nPlayer: " + computerPlayer.getPlayerName());
 			computerPlayer.getHand().printHand();
 			int currentScore = computerPlayer.getHand().getValueOfCardsInHand();
 			//TODO handle draw
@@ -97,7 +94,7 @@ public class BlackjackGame {
 			}
 		}
 		
-		System.out.println("Winner is: " + winner.getPlayerName() + ", score: " + winningScore);
+		output.write("Winner is: " + winner.getPlayerName() + ", score: " + winningScore);
 
 	}
 
@@ -116,20 +113,20 @@ public class BlackjackGame {
 			
 			if(currentPlayer.getPlayerType() == Player.PlayerType.human){
 				currentPlayer.getHand().printHand();				
-				System.out.println("Current hand value: " + handValue);
+				output.write("Current hand value: " + handValue);
 			}
 			
 			if (handValue > 21) {
-				System.out.println("Player: " + currentPlayer.getPlayerName() + " is bust!\n");
+				output.write("Player: " + currentPlayer.getPlayerName() + " is bust!\n");
 				//currentPlayer.getHand().printHand();
 				play = false;
 			} else {
 				GameMove move = this.getNextMove(currentPlayer);
 				if (move == GameMove.hit) {
-					System.out.println("Player: " + currentPlayer.getPlayerName() + " says hit!\n");
+					output.write("Player: " + currentPlayer.getPlayerName() + " says hit!\n");
 					currentPlayer.addToHand(this.dealer.deal(1));
 				} else if (move == GameMove.stick) {
-					System.out.println("Player: " + currentPlayer.getPlayerName() + " says stick\n");
+					output.write("Player: " + currentPlayer.getPlayerName() + " says stick\n");
 					play = false;
 				}
 			}
@@ -141,7 +138,7 @@ public class BlackjackGame {
 		GameMove move = null;
 		
 		if(currentPlayer.getPlayerType() == Player.PlayerType.human){
-			System.out.println("Hit (h) or stick (s) ?");
+			output.write("Hit (h) or stick (s) ?");
 			String text = getPlayerInput();
 	
 			if (text.equals("h")) {
@@ -197,5 +194,13 @@ public class BlackjackGame {
 		String text = scan.nextLine();
 		//scan.close();
 		return text;
+	}
+
+	public Output getOutput() {
+		return output;
+	}
+
+	public void setOutput(Output output) {
+		this.output = output;
 	}
 }
